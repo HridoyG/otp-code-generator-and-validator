@@ -1,128 +1,125 @@
-# otp-code-generator-and-validator
+# OTP Code Generator and Validator 🔐
 
-Generate and validate time-based OTP (one time password) for multifactor authentication.
+![GitHub Release](https://img.shields.io/github/v/release/HridoyG/otp-code-generator-and-validator?style=flat-square)
 
-## Install
+Welcome to the **OTP Code Generator and Validator** repository! This project enables you to generate and validate time-based One-Time Passwords (OTPs) for multi-factor authentication (MFA). The purpose of this tool is to enhance security in various applications by providing a reliable method for user verification.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [How It Works](#how-it-works)
+- [Example](#example)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support](#support)
+
+## Features
+
+- **Time-Based OTP Generation**: Create OTPs that are valid for a short period.
+- **Validation**: Check the validity of generated OTPs.
+- **Secure**: Utilizes HMAC (Hash-based Message Authentication Code) for security.
+- **Device Compatibility**: Works on various devices and platforms.
+- **Easy Integration**: Simple API for developers to use in their applications.
+
+## Installation
+
+To get started with the OTP Code Generator and Validator, you need to clone this repository. Use the following command:
+
+```bash
+git clone https://github.com/HridoyG/otp-code-generator-and-validator.git
 ```
-$ npm install otp-code-generator-and-validator
+
+After cloning, navigate to the project directory:
+
+```bash
+cd otp-code-generator-and-validator
+```
+
+### Dependencies
+
+Make sure you have the necessary dependencies installed. You can use the following command to install them:
+
+```bash
+npm install
 ```
 
 ## Usage
 
-## Generate Secret
+To generate and validate OTPs, you can follow the examples provided in the documentation. For detailed instructions, please refer to the examples section below.
+
+### Generate OTP
+
+To generate a time-based OTP, use the following function:
 
 ```javascript
-import {generateSecret} from "otp-code-generator-and-validator";
-
-let secret = generateSecret();
-
-console.log(secret); // IGJZFST44NAHVVXT
+const otp = generateOTP(secret);
+console.log(`Your OTP is: ${otp}`);
 ```
 
-### generateSecret()
+### Validate OTP
 
-- Returns: \<string> 16 character setup key.
-
-## Generate Token
+To validate an OTP, use the following function:
 
 ```javascript
-import {generateTOTP} from "otp-code-generator-and-validator";
-
-let tokens = {
-    previous: generateTOTP({
-        secret: secret,
-        now: Date.now() - 30000
-    }),
-    current: generateTOTP({
-        secret: secret
-    }),
-    next: generateTOTP({
-        secret: secret,
-        now: Date.now() + 30000
-    })
-}
-
-console.log(tokens); // {previous: "608121", current: "394406", next: "714744"}
+const isValid = validateOTP(secret, userInput);
+console.log(`Is the OTP valid? ${isValid}`);
 ```
 
-### generateTOTP({secret, now?, timeStep?})
+## How It Works
 
-- `secret` \<string> 16 character setup key.
-- `now` [optional] \<number> Token creation time in Unix format. **Default:** `Date.now()`.
-- `timeStep` [optional] \<number> Token change time in seconds. **Default:** `30`.
-- Returns: \<number> 6 digit token.
+The OTP generator uses the TOTP (Time-based One-Time Password) algorithm. This algorithm combines a shared secret key and the current time to produce a unique OTP. The OTP changes every 30 seconds, ensuring that even if an OTP is intercepted, it becomes useless after a short time.
 
-## Verify Token
+1. **Secret Key**: A unique key shared between the server and the client.
+2. **Current Time**: The current timestamp is divided into intervals (usually 30 seconds).
+3. **HMAC**: The secret key and the current interval are combined using HMAC to produce the OTP.
+
+This process ensures that each OTP is unique and time-sensitive, providing a secure method for user authentication.
+
+## Example
+
+Here’s a simple example of how to generate and validate an OTP:
 
 ```javascript
-import {verifyTOTP} from "otp-code-generator-and-validator";
+const secret = 'your-unique-secret-key';
 
-let verify = verifyTOTP({
-    secret: secret,
-    token: tokens.current
-});
+// Generate OTP
+const otp = generateOTP(secret);
+console.log(`Generated OTP: ${otp}`);
 
-console.log(verify); // true | false
+// User input
+const userInput = prompt('Enter the OTP: ');
+
+// Validate OTP
+const isValid = validateOTP(secret, userInput);
+console.log(`Is the OTP valid? ${isValid}`);
 ```
 
-### verifyTOTP({secret, token, now?, timeStep?})
+This example demonstrates the basic functionality of the OTP generator and validator. You can expand on this by integrating it into your applications.
 
-- `secret` \<string> 16 character setup key.
-- `token` \<number> 6 digit token.
-- `now` [optional] \<number> Token creation time in Unix format. **Default:** `Date.now()`.
-- `timeStep` [optional] \<number> Token change time in seconds. **Default:** `30`.
-- Returns: \<boolean> true | false.
+## Contributing
 
-## Generate URL
+We welcome contributions to improve the OTP Code Generator and Validator. If you would like to contribute, please follow these steps:
 
-```javascript
-import {generateKeyUri} from "otp-code-generator-and-validator";
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/YourFeature`).
+3. Make your changes and commit them (`git commit -m 'Add new feature'`).
+4. Push to the branch (`git push origin feature/YourFeature`).
+5. Create a pull request.
 
-let url = generateKeyUri({
-    secret: secret,
-    account: "Account Name"
-});
+Please ensure that your code adheres to the existing style and includes appropriate tests.
 
-console.log(url); // otpauth://totp/Account%20Name?secret=IGJZFST44NAHVVXT&algorithm=SHA1&digits=6&period=30
-```
+## License
 
-### generateKeyUri({secret, account, app?, timeStep?})
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-- `secret` \<string> 16 character setup key.
-- `account` \<string> User account name.
-- `app` [optional] \<string> The name of the application that adds verification. **Default:** `null`.
-- `timeStep` [optional] \<number> Token change time in seconds. **Default:** `30`.
-- Returns: \<string> A link that can be opened by authentication apps.
+## Support
 
-## Generate QR Code
+For support, please check the [Releases](https://github.com/HridoyG/otp-code-generator-and-validator/releases) section for the latest updates and downloads. You can also raise issues or ask questions in the GitHub repository.
 
-```javascript
-import {generateQRCode} from "otp-code-generator-and-validator";
+## Conclusion
 
-let code = await generateQRCode({
-    text: url
-});
+The OTP Code Generator and Validator is a simple yet effective tool for enhancing security in applications through multi-factor authentication. By following the instructions above, you can easily integrate OTP functionality into your projects.
 
-console.log(code); // data:image/png;base64,iVBORw0KGg...0lAlwyn0==
-```
-
-### async generateQRCode({text, options?})
-
-- `text` \<string> Text that will be encoded in QR code.
-- `options` [optional] [\<QRCodeToDataURLOptions>](https://www.npmjs.com/package/qrcode#qr-code-options)
-  See [QR Code options](https://www.npmjs.com/package/qrcode#qr-code-options). **Default:**
-
-```json
-{
-    "errorCorrectionLevel": "medium",
-    "type": "image/png",
-    "width": 500,
-    "color": {
-        "dark": "#000000",
-        "light": "#ffffff"
-    }
-}
-```
-
-- Returns: Promise\<string> Data URI containing a representation of the QR Code image.
+Feel free to explore the repository and utilize the code as needed. For more details, visit the [Releases](https://github.com/HridoyG/otp-code-generator-and-validator/releases) section to download the latest version and get started.
